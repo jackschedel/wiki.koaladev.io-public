@@ -31,7 +31,7 @@ The `item_icons` folder includes the item icon for **every** item in the pack, n
 
 ## Issues
 
-You are allowed to create issues on this repo for bugs/feature requests for [wiki.koaladev.io](https://wiki.koaladev.io) as a whole, even though this repository is just for the sources.
+Please create issues on this repo for any bugs/feature requests for [wiki.koaladev.io](https://wiki.koaladev.io) as a whole, even though this repository is just for the sources.
 
 ## Adding a New Modpack
 
@@ -74,8 +74,6 @@ Add the exported icons to the `item_icons/` folder.
 ### 3. Create a Pull Request
 
 Submit a Pull Request with your changes.
-
----
 
 ## Disclaimer
 
