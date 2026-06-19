@@ -19,13 +19,14 @@
 
 ## Repository Contents
 
-Currently, this repository is composed of two things:
+Currently, this repository is composed of three things:
 
-- **`quest-sources.config.mjs`** — Defines where to find the FTB Quests files for each modpack in the wiki.
-- **`item_icons/`** — Contains the preview PNGs for every block and item in every modpack on the wiki.
+- **`quest-sources.config.mjs`** - Defines where to find the FTB Quests files for each modpack in the wiki.
+- **`item_icons/`** - Contains the preview PNGs for every block and item in every modpack on the wiki.
+- **`recipe_data/`** - Contains the recipe data for all recipes in the pack, (currently not used)
 
 > [!NOTE]
-> Any items with `/` in the Minecraft item ID will appear in a subfolder. Because this folder is not per-modpack, it is possible that there will be conflicts between items/blocks of the same name (either for different versions of the mod or for something generic like `kubejs:coin`). If this becomes an issue, I can add support for per-modpack image overrides as well.
+> Any item icons with `/` in the Minecraft item ID will appear in a subfolder. Because this folder is not per-modpack, it is possible that there will be conflicts between items/blocks of the same name (either for different versions of the mod or for something generic like `kubejs:coin`). If this becomes an issue, I can add support for per-modpack image overrides as well.
 
 The `item_icons` folder includes the item icon for **every** item in the pack, not just the ones needed to render the quest book. My hope is that these can be useful in the future, either for future wiki features, or just as a repository for other developers.
 
@@ -72,7 +73,25 @@ Requirements:
 
 Add the exported icons to the `item_icons/` folder.
 
-### 3. Create a Pull Request
+### 3. Export Recipe Data
+Export all recipe data as JSON. If using KubeJS, the following script can be added to the end of any file in `.minecraft/kubejs/server_scripts`:
+```js
+// priority: -10000
+ServerEvents.recipes(event => {
+    let recipes = []
+    event.forEachRecipe({}, r => {
+        recipes.push(JSON.parse(r.json.toString()))
+    })
+
+    JsonIO.write('local/exported_recipes.json', { recipes: recipes })
+})
+```
+
+This will create the file `.minecraft/local/exported_recipes.json`. 
+
+Add the exported recipes to the `recipe_data` folder, renaming `exported_recipes.json` to `{modpack name}.json`
+
+### 4. Create a Pull Request
 
 Submit a Pull Request with your changes.
 
