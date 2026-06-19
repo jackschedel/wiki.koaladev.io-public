@@ -87,7 +87,7 @@ ServerEvents.recipes(event => {
 })
 ```
 
-This will create the file `.minecraft/local/exported_recipes.json`. 
+This will create the file `.minecraft/local/exported_recipes.json` when loading a singleplayer world.
 
 Add the exported recipes to the `recipe_data` folder, renaming `exported_recipes.json` to `{modpack name}.json`
 
