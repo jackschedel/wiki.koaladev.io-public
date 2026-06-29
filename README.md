@@ -39,7 +39,7 @@ Please create issues on this repo for any bugs/feature requests for [wiki.koalad
 
 ### 1. Configure Quest Sources
 
-Add a new array element in `quest-sources.config.mjs`, following the format:
+Add a new array element in `quest-sources.config.mjs` for the new modpack, following the format:
 
 ```js
 export default [
@@ -72,47 +72,18 @@ Requirements:
 - **Resolution:** 256×256
 - **Filename:** Same as item id in game, replacing `:` with `_`.
 
-Add the exported icons to the `item_icons/` folder.
+Add the exported icons to the `item_icons/` folder in the repository.
 
-### 3. Export Item Names
-Export all item display names as a JSON mapping. If using KubeJS, the following script can be added to the end of any file in `.minecraft/kubejs/server_scripts`:
-```js
-// priority: -10000
-ServerEvents.recipes(event => {
-    let names = {}
-    Item.getTypeList().forEach(id => {
-        try {
-            let stack = Item.of(id)
-            names[id.toString()] = stack.getHoverName().getString()
-        } catch (e) {
-            // skip items that need NBT context for their name
-        }
-    })
-    JsonIO.write('local/item_names.json', names)
-})
-```
+### 3. Export Item and Recipe Data
+Copy the file `SERVER_export_modpack_data.js` from the respository to your modpack instance's `.minecraft/kubejs/server_scripts` folder. Load a singleplayer world.
+This will create the files:
+- `.minecraft/local/item_names.json`
+- `.minecraft/local/recipe_data.json`
+- `.minecraft/local/item_tags.json`
 
-This will create the file `.minecraft/local/item_names.json` when loading a singleplayer world.
-
-Add the exported names to the `item_names/` folder, naming it `{modpack name}.json`.
-
-### 4. Export Recipe Data
-Export all recipe data as JSON. If using KubeJS, the following script can be added to the end of any file in `.minecraft/kubejs/server_scripts`:
-```js
-// priority: -10000
-ServerEvents.recipes(event => {
-    let recipes = []
-    event.forEachRecipe({}, r => {
-        recipes.push(JSON.parse(r.json.toString()))
-    })
-
-    JsonIO.write('local/recipe_data.json', { recipes: recipes })
-})
-```
-
-This will create the file `.minecraft/local/recipe_data.json` when loading a singleplayer world.
-
-Add the exported recipes to the `recipe_data` folder, renaming `recipe_data.json` to `{modpack name}.json`.
+Add the `item_names.json` file to the `item_names/` folder, naming it `{modpack name}.json`.
+Add the `recipe_data.json` file to the `recipe_data/` folder, naming it `{modpack name}.json`.
+Add the `item_tags.json` file to the `item_tags/` folder, naming it `{modpack name}.json`.
 
 ### 5. Create a Pull Request
 
