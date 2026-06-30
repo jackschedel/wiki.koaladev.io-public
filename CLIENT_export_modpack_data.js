@@ -18,6 +18,27 @@ const RegistryOpsCls = Java.loadClass('net.minecraft.resources.RegistryOps')
 const ItemStackCls = Java.loadClass('net.minecraft.world.item.ItemStack')
 const CreativeModeTabsCls = Java.loadClass('net.minecraft.world.item.CreativeModeTabs')
 
+// The export below writes into the single shared file local/modpack_data.json,
+// storing its payload under the key item_nbt. The server export writes the
+// other keys (item_names, recipe_data, item_tags, fluid_tags) to the same file.
+// Because the server and client scripts run separately, this read-merge-write
+// preserves whatever keys the server already wrote (and vice versa).
+function mergeModpackData(updates) {
+    let existing = {}
+    try {
+        // JsonIO.read() returns a Java Map whose toString() isn't valid JSON;
+        // readJson() gives a JsonElement we can stringify and parse cleanly.
+        let current = JsonIO.readJson('local/modpack_data.json')
+        if (current && !current.isJsonNull()) {
+            existing = JSON.parse(JsonIO.toString(current))
+        }
+    } catch (e) {
+        existing = {}
+    }
+    Object.keys(updates).forEach(k => existing[k] = updates[k])
+    JsonIO.write('local/modpack_data.json', existing)
+}
+
 // Pull the distinguishing payload off a stack. The data that makes two stacks
 // of the same item id differ (potion contents, banner patterns, enchantments,
 // turbine material, computercraft upgrades, ...) lives in the stack's NBT. The
@@ -133,13 +154,11 @@ function exportNbtNames() {
 
     console.log('[NBT EXPORT] ' + Object.keys(variants).length + ' ids in search tab, '
         + Object.keys(nbtNames).length + ' need NBT context for their name')
-    JsonIO.write('local/item_nbt.json', nbtNames)
+    mergeModpackData({ item_nbt: nbtNames })
 }
 
-// Fires on world join (first launch).
-ClientEvents.loggedIn(event => exportNbtNames())
-
-// `/kubejs reload client_scripts` re-evaluates this file but does NOT re-fire
-// loggedIn. If we're already in a world, run the export now so a reload alone
-// regenerates the file without needing to rejoin.
+// Runs only on `/kubejs reload client_scripts`, which re-evaluates this file.
+// We do NOT hook ClientEvents.loggedIn: the creative search tab is only
+// populated after the creative inventory has been opened at least once, so a
+// world-join export would see an empty tab. Open creative once, then reload.
 if (Client.player) exportNbtNames()

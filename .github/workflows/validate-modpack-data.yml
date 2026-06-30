@@ -1,0 +1,40 @@
+name: Validate Modpack Data
+
+on:
+  pull_request:
+    paths:
+      - "modpack_data/**.json"
+
+jobs:
+  validate-modpack-data:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Determine added/modified modpack_data files
+        id: changed
+        run: |
+          git fetch --no-tags --depth=1 origin "${{ github.base_ref }}"
+          files=$(git diff --name-only --diff-filter=AM \
+            "origin/${{ github.base_ref }}...HEAD" -- 'modpack_data/*.json')
+          {
+            echo "files<<EOF"
+            echo "$files"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+          echo "Changed modpack_data files:"
+          echo "$files"
+
+      - name: Validate required top-level keys
+        if: steps.changed.outputs.files != ''
+        run: |
+          echo "${{ steps.changed.outputs.files }}" \
+            | xargs node .github/scripts/validate-modpack-data.mjs
